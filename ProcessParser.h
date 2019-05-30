@@ -45,3 +45,32 @@ class ProcessParser{
 };
 
 // TODO: Define all of the above functions below:
+string ProcessParser::getVmSize(string pid) {
+    string line;
+
+    // declare name to search in file
+    string name = "VmData"; // in case of doubt, verify it from "cat /proc/pid#/status"
+
+    float result;
+
+    // open stream for specific file
+    std::ifstream stream;
+    Util::getStream((Path::basePath() + pid + Path::statusPath()), stream);
+
+    while(getline(stream, line)) {
+
+        // searching line by line
+        if(line.compare(0, name.size(), name) == 0) {
+
+            //slicing string line on ws for values using sstream
+            istringstream buf(line);
+            istream_iterator<string> beg(buf), end;
+            vector<string> values(beg, end);
+
+            // conversion of kB -> GB
+            result = stof(values[1])/float(1024);
+            break;
+        }
+    }
+    return to_string(result);
+}
