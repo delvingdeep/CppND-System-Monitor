@@ -109,3 +109,21 @@ std::string ProcessParser::getCpuPercent(string pid) {
 
     return to_string(result);
 }
+
+std::string ProcessParser::getProcUpTime(string pid) {
+    string line;
+    float result;
+
+    ifstream stream;
+    Util::getStream((Path::basePath() + pid + "/" + Path::statPath()), stream);
+    getline(stream, line);
+    string str = line;
+
+    //slicing string line on ws for values using sstream
+    istringstream buf(str);
+    istream_iterator<string> beg(buf), end;
+    vector<string> values(beg, end);
+
+    // sysconf returns clock ticks of the host machine
+    return to_string(float(stof(values[13])/sysconf(_SC_CLK_TCK)));
+}
