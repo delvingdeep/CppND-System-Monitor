@@ -46,6 +46,15 @@ class ProcessParser{
 
 // TODO: Define all of the above functions below:
 
+string ProcessParser::getCmd(string pid) {
+    string line;
+
+    ifstream stream;
+    Util::getStream((Path::basePath() + pid + Path::cmdPath()));
+    getline(stream, line);
+    return line;
+}
+
 vector<string> ProcessParser::getPidList() {
     DIR* dir;
 
