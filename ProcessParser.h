@@ -37,6 +37,7 @@ class ProcessParser{
         static float getSysRamPercent();
         static string getSysKernelVersion();
         static int getTotalThreads();
+        static int getNumberOfCores();
         static int getTotalNumberOfProcesses();
         static int getNumberOfRunningProcesses();
         static string getOSName();
@@ -50,7 +51,7 @@ string ProcessParser::getCmd(string pid) {
     string line;
 
     ifstream stream;
-    Util::getStream((Path::basePath() + pid + Path::cmdPath()));
+    Util::getStream((Path::basePath() + pid + Path::cmdPath()), stream);
     getline(stream, line);
     return line;
 }
@@ -104,7 +105,7 @@ string ProcessParser::getVmSize(string pid) {
             istream_iterator<string> beg(buf), end;
             vector<string> values(beg, end);
 
-            // conversion of kB -> GB
+            // conversion of kB -> MB
             result = stof(values[1])/float(1024);
             break;
         }
@@ -212,4 +213,25 @@ std::string ProcessParser::getProcUser(string pid) {
         }
     }
     return "";
+}
+
+int ProcessParser::getNumberOfCores() {
+    // Get number of host cpu cores
+    string line;
+    string name = "cpu cores";
+    ifstream stream;
+    Util::getStream((Path::basePath() + "cpuinfo"), stream);
+
+    while(getline(stream, line)) {
+
+        // searching line by line
+        if(line.compare(0, name.size(), name) == 0) {
+            istringstream buf(line);
+            istream_iterator<string> beg(buf), end;
+            vector<string> values(beg, end);
+
+            return stoi(values[3]);
+        }
+    }
+    return 0;
 }
