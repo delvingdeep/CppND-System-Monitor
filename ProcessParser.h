@@ -45,6 +45,34 @@ class ProcessParser{
 };
 
 // TODO: Define all of the above functions below:
+
+vector<string> ProcessParser::getPidList() {
+    DIR* dir;
+
+    // scan /proc for all directories with numbers as their names and if found store it in a container
+    vector<string> container;
+    if(!(dir = opendir("/proc")))
+        throw std::runtime_error(std::strerror(errno));
+    
+    while(dirent* dirp = readdir(dir)) {
+
+        // check if not directory
+        if(drip->d_type != DT_DIR)
+            continue;
+        
+        // check every character of the name to be digit
+        if(all_of(drip->d_name, dirp->d_name + std::strlen(dirp->d_name), [](char c){ return std::isdigit(c); })) {
+            container.push_bach(dirp->d_name);
+        }
+    }
+
+    // check if directory is closed
+    if(closedir(dir))
+        throw std::runtime_error(std:strerror(errno));
+    
+    return container;
+}
+
 string ProcessParser::getVmSize(string pid) {
     string line;
 
