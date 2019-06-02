@@ -110,6 +110,22 @@ std::string ProcessParser::getCpuPercent(string pid) {
     return to_string(result);
 }
 
+long int ProcessParser::getSysUpTime() {
+    string line;
+
+    ifstream stream;
+    Util::getStream((Path::basePath() + Path::upTimePath()), stream);
+    getline(stream, line);
+    string str = line;
+
+    //slicing string line on ws for values using sstream
+    istringstream buf(str);
+    istream_iterator<string> beg(buf), end;
+    vector<string> values(beg, end);
+
+    return stoi(values[0]);
+}
+
 std::string ProcessParser::getProcUpTime(string pid) {
     string line;
     float result;
