@@ -47,7 +47,6 @@ class ProcessParser{
         static bool isPidExisting(string pid);
 };
 
-// TODO: Define all of the above functions below:
 
 string ProcessParser::getCmd(string pid) {
     string line;
@@ -301,7 +300,7 @@ string ProcessParser::getSysKernelVersion() {
     string line;
     string name = "Linux version";
     ifstream stream;
-    Util::getStream((Path::basePath() + Path::versionPath(), stream);
+    Util::getStream((Path::basePath() + Path::versionPath()), stream);
 
     while (getline(stream, line)) {
         if (line.compare(0, name.size(),name) == 0) {
@@ -425,4 +424,15 @@ string ProcessParser::PrintCpuStats(vector<string> values1, vector<string>values
     float total_time = active_time + idle_time;
     float result = 100.0*(active_time / total_time);
     return to_string(result);
+}
+
+bool ProcessParser::isPidExisting(string pid) {
+    vector<string> pidList = ProcessParser::getPidList();
+    
+    for(int i=0; i < pidList.size(); i++) {
+        if(pidList[i] == pid)
+            return true;
+    }
+
+    return false;
 }

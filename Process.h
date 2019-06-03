@@ -43,16 +43,17 @@ string Process::getPid()const {
 }
 
 string Process::getProcess() {
-    //if(!ProcessParser::isPidExisting(this->pid))
-    //    return "";
+    if(!ProcessParser::isPidExisting(this->pid))
+        return "";
+    this->user = ProcessParser::getProcUser(this->pid);
     this->mem = ProcessParser::getVmSize(this->pid);
     this->upTime = ProcessParser::getProcUpTime(this->pid);
     this->cpu = ProcessParser::getCpuPercent(this->pid);
 
     return (this->pid + "   " + 
-            this->user + "   " + 
+            this->user.substr(0,10) + "   " + 
             this->mem.substr(0,5) + "     " + 
             this->cpu.substr(0,5) + "     " + 
-            this->up_time.substr(0,5) + "    " + 
+            this->upTime.substr(0,5) + "    " + 
             this->cmd.substr(0,30) + "...");
 }
