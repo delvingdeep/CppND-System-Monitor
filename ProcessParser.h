@@ -69,18 +69,18 @@ vector<string> ProcessParser::getPidList() {
     while(dirent* dirp = readdir(dir)) {
 
         // check if not directory
-        if(drip->d_type != DT_DIR)
+        if(dirp->d_type != DT_DIR)
             continue;
         
         // check every character of the name to be digit
-        if(all_of(drip->d_name, dirp->d_name + std::strlen(dirp->d_name), [](char c){ return std::isdigit(c); })) {
-            container.push_bach(dirp->d_name);
+        if(all_of(dirp->d_name, dirp->d_name + std::strlen(dirp->d_name), [](char c){ return std::isdigit(c); })) {
+            container.push_back(dirp->d_name);
         }
     }
 
     // check if directory is closed
     if(closedir(dir))
-        throw std::runtime_error(std:strerror(errno));
+        throw std::runtime_error(std::strerror(errno));
     
     return container;
 }
@@ -217,7 +217,7 @@ std::string ProcessParser::getProcUser(string pid) {
     return "";
 }
 
-vector<string> ProcessParser::getSysCpuPercent(string coreNumber = ""){
+vector<string> ProcessParser::getSysCpuPercent(string coreNumber){
     // function gives CPU percent for entire CPU when no argument is passed, else specific CPU core
     string line;
     string name = "cpu" + coreNumber;
@@ -257,7 +257,7 @@ float ProcessParser::getSysRamPercent() {
     string line;
     string name1 = "MemAvailble:";
     string name2 = "MemFree:";
-    string name3 = "Buffers:"
+    string name3 = "Buffers:";
     int result;
     ifstream stream;
 
@@ -301,7 +301,7 @@ string ProcessParser::getSysKernelVersion() {
     string line;
     string name = "Linux version";
     ifstream stream;
-    Util::getStream((Path::basePath() + Path::versionPath), stream);
+    Util::getStream((Path::basePath() + Path::versionPath(), stream);
 
     while (getline(stream, line)) {
         if (line.compare(0, name.size(),name) == 0) {
@@ -319,7 +319,7 @@ int ProcessParser::getTotalThreads() {
     int result = 0;
     string name = "Threads:";
 
-    vector<string>_list = ProcessParser::get_pid_list();
+    vector<string>_list = ProcessParser::getPidList();
     
     for (int i=0 ; i<_list.size();i++) {
         string pid = _list[i];
