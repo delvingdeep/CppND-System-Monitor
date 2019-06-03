@@ -34,6 +34,8 @@ class ProcessParser{
         static std::string getProcUpTime(string pid);
         static string getProcUser(string pid);
         static vector<string> getSysCpuPercent(string coreNumber = "");
+        static float getSysActiveCpuTime(vector<string> values);
+        static float getSysIdleCpuTime(vector<string> values);
         static float getSysRamPercent();
         static string getSysKernelVersion();
         static int getTotalThreads();
@@ -215,6 +217,42 @@ std::string ProcessParser::getProcUser(string pid) {
     return "";
 }
 
+vector<string> ProcessParse::getSysCpuPercent(string coreNumber = ""){
+    // function gives CPU percent for entire CPU when no argument is passed, else specific CPU core
+    string line;
+    string name = "cpu" + coreNumber;
+    int result;
+
+    ifstream stream;
+    Util::getStream((Path::basePath() + Path::statPath()), stream);
+
+    while(getline(stream, line)) {
+        if(line.compare(0, name.size(), name) == 0) {
+            istringstream buf(line);
+            istream_iterator<string> beg(buf), end;
+            vector<string> values(beg, end);
+
+            return values;
+        }
+    }
+    return (vector<string> ());
+}
+
+float ProcessParser::getSysActiveCpuTime(vector<string> values) {
+    return (stof(values[S_USER]) +
+            stof(values[S_NICE]) +
+            stof(values[S_SYSTEM]) +
+            stof(values[S_IRQ]) +
+            stof(values[S_SOFTIRQ]) +
+            stof(values[S_STEAL]) +
+            stof(values[S_GUEST]) +
+            stof(values[S_GUEST_NICE]));
+}
+
+float ProcessParser::getSysIdleCpuTime(vector<string> values) {
+    return (stof(values[S_IDLE]) + stod(values[S_IOWAIT]));
+}
+
 int ProcessParser::getNumberOfCores() {
     // Get number of host cpu cores
     string line;
@@ -234,4 +272,12 @@ int ProcessParser::getNumberOfCores() {
         }
     }
     return 0;
+}
+
+string ProcessParser::PrintCpuStats(vector<string> values1, vector<string>values2) {
+    float active_time = getSysActiveCpuTime(values2) - getSysActiveCpuTime(values1);
+    float idle_time = getSysIdleCpuTime(values2) - getSysIdleCpuTime(values1);
+    float total_time = active_time + idle_time;
+    float result = 100.0*(active_time / total_time);
+    return to_string(result);
 }
