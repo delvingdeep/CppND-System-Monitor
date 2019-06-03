@@ -217,7 +217,7 @@ std::string ProcessParser::getProcUser(string pid) {
     return "";
 }
 
-vector<string> ProcessParse::getSysCpuPercent(string coreNumber = ""){
+vector<string> ProcessParser::getSysCpuPercent(string coreNumber = ""){
     // function gives CPU percent for entire CPU when no argument is passed, else specific CPU core
     string line;
     string name = "cpu" + coreNumber;
@@ -327,7 +327,7 @@ int ProcessParser::getTotalThreads() {
         // Get every process and read their number of threads
         ifstream stream;
         Util::getStream((Path::basePath() + pid + Path::statusPath()), stream);
-        
+
         while (std::getline(stream, line)) {
             if (line.compare(0, name.size(), name) == 0) {
                 istringstream buf(line);
@@ -360,6 +360,44 @@ int ProcessParser::getNumberOfCores() {
         }
     }
     return 0;
+}
+
+int ProcessParser::getTotalNumberOfProcesses() {
+    string line;
+    int result = 0;
+    string name = "processes";
+    ifstream stream;
+    Util::getStream((Path::basePath() + Path::statPath()), stream);
+
+    while (getline(stream, line)) {
+        if (line.compare(0, name.size(), name) == 0) {
+            istringstream buf(line);
+            istream_iterator<string> beg(buf), end;
+            vector<string> values(beg, end);
+            result += stoi(values[1]);
+            break;
+        }
+    }
+    return result;
+}
+
+int ProcessParser::getNumberOfRunningProcesses() {
+    string line;
+    int result = 0;
+    string name = "procs_running";
+    ifstream stream;
+    Util::getStream((Path::basePath() + Path::statPath()), stream);
+
+    while (getline(stream, line)) {
+        if (line.compare(0, name.size(), name) == 0) {
+            istringstream buf(line);
+            istream_iterator<string> beg(buf), end;
+            vector<string> values(beg, end);
+            result += stoi(values[1]);
+            break;
+        }
+    }
+    return result;
 }
 
 string ProcessParser::getOSName() {
