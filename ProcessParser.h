@@ -297,6 +297,50 @@ float ProcessParser::getSysRamPercent() {
     return (float)(100.0 * (1 - (free_mem / (total_mem - buffers))));
 }
 
+string ProcessParser::getSysKernelVersion() {
+    string line;
+    string name = "Linux version";
+    ifstream stream;
+    Util::getStream((Path::basePath() + Path::versionPath), stream);
+
+    while (getline(stream, line)) {
+        if (line.compare(0, name.size(),name) == 0) {
+            istringstream buf(line);
+            istream_iterator<string> beg(buf), end;
+            vector<string> values(beg, end);
+            return values[2];
+        }
+    }
+    return "";
+}
+
+int ProcessParser::getTotalThreads() {
+    string line;
+    int result = 0;
+    string name = "Threads:";
+
+    vector<string>_list = ProcessParser::get_pid_list();
+    
+    for (int i=0 ; i<_list.size();i++) {
+        string pid = _list[i];
+
+        // Get every process and read their number of threads
+        ifstream stream;
+        Util::getStream((Path::basePath() + pid + Path::statusPath()), stream);
+        
+        while (std::getline(stream, line)) {
+            if (line.compare(0, name.size(), name) == 0) {
+                istringstream buf(line);
+                istream_iterator<string> beg(buf), end;
+                vector<string> values(beg, end);
+                result += stoi(values[1]);
+                break;
+            }
+        }
+        return result;
+    }
+}
+
 int ProcessParser::getNumberOfCores() {
     // Get number of host cpu cores
     string line;
@@ -316,6 +360,25 @@ int ProcessParser::getNumberOfCores() {
         }
     }
     return 0;
+}
+
+string ProcessParser::getOSName() {
+    string line;
+    string name = "PRETTY_NAME=";
+
+    ifstream stream;
+    Util::getStream(("/etc/os-release"), stream);
+
+    while (getline(stream, line)) {
+        if (line.compare(0, name.size(), name) == 0) {
+              std::size_t found = line.find("=");
+              found++;
+              string result = line.substr(found);
+              result.erase(std::remove(result.begin(), result.end(), '"'), result.end());
+              return result;
+        }
+    }
+    return "";
 }
 
 string ProcessParser::PrintCpuStats(vector<string> values1, vector<string>values2) {
